@@ -120,6 +120,7 @@ sequenceDiagram
 | Layer                 | Technology / Library              | Purpose                   |
 +-----------------------+-----------------------------------+---------------------------+
 | Core Runtime          | Python 3.12+ (Standard Library)   | Core computation & logic  |
+| LLM Intelligence      | xAI Grok (grok-beta / grok-2)     | Live dynamic discovery    |
 | Data Models           | dataclasses, typing               | Type-safe domain models   |
 | Spreadsheet Engine    | openpyxl (3.1.2+)                 | Native XML-based XLSX gen |
 | Web Backend           | http.server, socketserver         | Zero-dependency REST API  |

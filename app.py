@@ -1,7 +1,7 @@
 """
 Agentic AI Travel Intelligence Platform - Web Server & Interactive Dashboard
 Runs a lightweight, zero-dependency Python HTTP server with live REST API endpoints
-and a modern glassmorphic web dashboard for executing the multi-agent travel engine.
+and an interactive glassmorphic web dashboard for executing the verified multi-source travel engine.
 """
 
 import http.server
@@ -10,7 +10,10 @@ import json
 import urllib.parse
 import os
 import sys
+from dotenv import load_dotenv
 from engine import AgenticTravelEngine
+
+load_dotenv()
 
 PORT = 8088
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
@@ -46,7 +49,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
       background: rgba(15, 23, 42, 0.85);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
-      padding: 18px 32px;
+      padding: 16px 32px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -62,24 +65,14 @@ HTML_DASHBOARD = """<!DOCTYPE html>
       font-weight: 700;
       color: #fff;
     }
-    .badge-live {
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      padding: 4px 10px;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-    }
     .container {
-      max-width: 1400px;
+      max-width: 1460px;
       margin: 0 auto;
-      padding: 28px 24px;
+      padding: 24px 20px;
       width: 100%;
       display: grid;
       grid-template-columns: 360px 1fr;
-      gap: 24px;
+      gap: 22px;
     }
     .card {
       background: var(--card-bg);
@@ -142,108 +135,136 @@ HTML_DASHBOARD = """<!DOCTYPE html>
       color: #cbd5e1;
       cursor: pointer;
     }
-    .slider-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
     .btn-primary {
-      width: 100%;
       background: linear-gradient(135deg, #2563eb, #1d4ed8);
       color: #fff;
       border: none;
-      border-radius: 10px;
-      padding: 13px;
+      border-radius: 8px;
+      padding: 12px 16px;
       font-size: 0.95rem;
       font-weight: 600;
+      width: 100%;
       cursor: pointer;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       gap: 8px;
-      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
       transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
     }
     .btn-primary:hover {
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
       transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+    }
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-sm {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: #94a3b8;
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-sm:hover {
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+    }
+    .pulse-ready {
+      animation: pulse-glow 1.5s infinite;
+    }
+    @keyframes pulse-glow {
+      0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5); }
+      70% { box-shadow: 0 0 0 8px rgba(37, 99, 235, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
     }
     .btn-download {
-      background: linear-gradient(135deg, #10b981, #059669);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
       color: #fff;
-      border: none;
-      border-radius: 10px;
-      padding: 11px 20px;
-      font-size: 0.88rem;
-      font-weight: 600;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.82rem;
+      font-weight: 500;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       text-decoration: none;
-      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
       transition: all 0.2s;
     }
     .btn-download:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.2);
     }
     .tab-bar {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       border-bottom: 1px solid var(--border);
-      padding-bottom: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
       overflow-x: auto;
+      padding-bottom: 6px;
     }
     .tab-btn {
       background: transparent;
-      border: 1px solid transparent;
+      border: none;
       color: var(--text-muted);
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 500;
+      padding: 8px 12px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: all 0.2s;
       white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.04);
     }
     .tab-btn.active {
-      background: rgba(37, 99, 235, 0.15);
       color: #60a5fa;
-      border-color: rgba(37, 99, 235, 0.3);
+      background: rgba(37, 99, 235, 0.15);
       font-weight: 600;
     }
     .table-container {
       overflow-x: auto;
-      max-height: 520px;
-      border-radius: 10px;
+      max-height: 580px;
       border: 1px solid var(--border);
+      border-radius: 8px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.84rem;
+      font-size: 0.82rem;
       text-align: left;
     }
     th {
-      background: #0f172a;
-      color: #94a3b8;
+      background: #0b1329;
+      color: #cbd5e1;
       font-weight: 600;
-      padding: 11px 14px;
+      padding: 10px 14px;
       position: sticky;
       top: 0;
+      z-index: 10;
       border-bottom: 1px solid var(--border);
+      white-space: nowrap;
     }
     td {
-      padding: 10px 14px;
+      padding: 9px 14px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       color: #e2e8f0;
+      white-space: nowrap;
+    }
+    tr:nth-child(even) td {
+      background: rgba(255, 255, 255, 0.015);
     }
     tr:hover td {
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(37, 99, 235, 0.06);
     }
     .rank-badge {
       display: inline-flex;
@@ -273,7 +294,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
     .log-item { margin-bottom: 4px; line-height: 1.4; }
     .metric-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
       margin-bottom: 20px;
     }
@@ -285,6 +306,37 @@ HTML_DASHBOARD = """<!DOCTYPE html>
     }
     .metric-title { font-size: 0.75rem; color: var(--text-muted); }
     .metric-val { font-size: 1.35rem; font-weight: 700; color: #fff; margin-top: 2px; }
+    .pill-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px 7px;
+      border-radius: 5px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      text-decoration: none;
+      margin-right: 4px;
+      transition: all 0.15s;
+    }
+    .pill-g-hotels { background: rgba(66, 133, 244, 0.15); color: #93c5fd; border: 1px solid rgba(66, 133, 244, 0.3); }
+    .pill-g-hotels:hover { background: rgba(66, 133, 244, 0.3); }
+    .pill-g-maps { background: rgba(52, 168, 83, 0.15); color: #86efac; border: 1px solid rgba(52, 168, 83, 0.3); }
+    .pill-g-maps:hover { background: rgba(52, 168, 83, 0.3); }
+    .pill-booking { background: rgba(0, 53, 128, 0.4); color: #60a5fa; border: 1px solid rgba(0, 53, 128, 0.6); }
+    .pill-booking:hover { background: rgba(0, 53, 128, 0.7); }
+    .pill-expedia { background: rgba(254, 187, 2, 0.15); color: #fde047; border: 1px solid rgba(254, 187, 2, 0.3); }
+    .pill-expedia:hover { background: rgba(254, 187, 2, 0.3); }
+    .pill-wyndham { background: rgba(225, 29, 72, 0.15); color: #fda4af; border: 1px solid rgba(225, 29, 72, 0.3); }
+    .pill-wyndham:hover { background: rgba(225, 29, 72, 0.3); }
+    .badge-avail {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -294,13 +346,15 @@ HTML_DASHBOARD = """<!DOCTYPE html>
     <span style="font-size: 1.5rem;">✈️</span>
     <div>
       <div>Agentic AI Travel Intelligence Platform</div>
-      <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 400;">Autonomous Multi-Agent Transit, Safety & Budget Engine</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 400;">Multi-Source Transit & Hotel Intelligence Platform</div>
     </div>
   </div>
   <div style="display: flex; gap: 12px; align-items: center;">
-    <span class="badge-live">⚡ Multi-Agent Active</span>
+    <a href="/api/download-n8n-workflow" class="btn-download" style="border-color: rgba(99, 102, 241, 0.4); background: rgba(99, 102, 241, 0.15); color: #a5b4fc;">
+      <span>⚡</span> Download n8n Workflow (.json)
+    </a>
     <a href="/api/download-excel" class="btn-download">
-      <span>📥</span> Download Excel (.xlsx)
+      <span>📥</span> Download Master Excel (.xlsx)
     </a>
   </div>
 </header>
@@ -313,8 +367,8 @@ HTML_DASHBOARD = """<!DOCTYPE html>
     <div class="control-group">
       <label>Target Budget Range (USD)</label>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-        <input type="number" id="budgetMin" value="50" min="20" max="200" placeholder="Min $">
-        <input type="number" id="budgetMax" value="60" min="30" max="300" placeholder="Max $">
+        <input type="number" id="budgetMin" value="50" min="20" max="300" placeholder="Min $">
+        <input type="number" id="budgetMax" value="60" min="20" max="350" placeholder="Max $">
       </div>
     </div>
 
@@ -324,7 +378,13 @@ HTML_DASHBOARD = """<!DOCTYPE html>
     </div>
 
     <div class="control-group">
-      <label>Target Metropolitan Markets</label>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+        <label style="margin: 0;">Target Metropolitan Markets</label>
+        <div style="display: flex; gap: 4px;">
+          <button type="button" class="btn-sm" onclick="selectAllCities(true)">Select All</button>
+          <button type="button" class="btn-sm" onclick="selectAllCities(false)">Deselect All</button>
+        </div>
+      </div>
       <div class="cities-checkbox-grid">
         <label class="city-check"><input type="checkbox" name="city" value="New York" checked> New York</label>
         <label class="city-check"><input type="checkbox" name="city" value="New Jersey" checked> New Jersey</label>
@@ -359,15 +419,11 @@ HTML_DASHBOARD = """<!DOCTYPE html>
       </div>
       <div class="metric-card">
         <div class="metric-title">Transit Corridors</div>
-        <div class="metric-val" id="metricCorridors">55</div>
+        <div class="metric-val" id="metricCorridors">88</div>
       </div>
       <div class="metric-card">
-        <div class="metric-title">Budget Matches ($50-$60)</div>
-        <div class="metric-val" style="color: #34d399;" id="metricBudget">55/55</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-title">Validation Status</div>
-        <div class="metric-val" style="color: #38bdf8;" id="metricValidation">PASS</div>
+        <div class="metric-title">Verified Budget Matches</div>
+        <div class="metric-val" style="color: #34d399;" id="metricBudget">0 Hotels</div>
       </div>
     </div>
 
@@ -375,7 +431,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
       <button class="tab-btn active" onclick="switchTab('final_output', this)">⭐ Sheet 6: Final Recommendations</button>
       <button class="tab-btn" onclick="switchTab('scores', this)">📊 Sheet 5: Recommendation Scores</button>
       <button class="tab-btn" onclick="switchTab('transit', this)">🚆 Sheet 2: Transit Connectivity</button>
-      <button class="tab-btn" onclick="switchTab('accommodations', this)">🏨 Sheet 3: Accommodations ($50-$60)</button>
+      <button class="tab-btn" onclick="switchTab('accommodations', this)">🏨 Sheet 3: Verified Accommodations</button>
       <button class="tab-btn" onclick="switchTab('safety', this)">🛡️ Sheet 4: Safety & Crime Index</button>
       <button class="tab-btn" onclick="switchTab('cities', this)">🏙️ Sheet 1: City Master</button>
     </div>
@@ -391,21 +447,36 @@ HTML_DASHBOARD = """<!DOCTYPE html>
 <script>
 let currentData = null;
 let activeTabName = 'final_output';
+let activeAbortController = null;
 
 async function executeEngine() {
+  if (activeAbortController) {
+    activeAbortController.abort();
+  }
+  activeAbortController = new AbortController();
+
   const btn = document.getElementById('runBtn');
   btn.disabled = true;
-  btn.innerHTML = '<span>⏳</span> Agents Working...';
+  btn.classList.remove('pulse-ready');
+  btn.innerHTML = '<span>⏳</span> Querying Intelligence APIs...';
 
   const budgetMin = parseFloat(document.getElementById('budgetMin').value) || 50;
   const budgetMax = parseFloat(document.getElementById('budgetMax').value) || 60;
   const maxCommute = parseInt(document.getElementById('maxCommute').value) || 90;
   const cityChecks = Array.from(document.querySelectorAll('input[name="city"]:checked')).map(cb => cb.value);
 
+  if (cityChecks.length === 0) {
+    alert('Please select at least one metropolitan market.');
+    btn.disabled = false;
+    btn.innerHTML = '<span>🚀</span> Run Autonomous Agents';
+    return;
+  }
+
   try {
     const res = await fetch('/api/run-pipeline', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: activeAbortController.signal,
       body: JSON.stringify({
         budget_min: budgetMin,
         budget_max: budgetMax,
@@ -413,16 +484,24 @@ async function executeEngine() {
         cities: cityChecks
       })
     });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.message || 'Server error ' + res.status);
+    }
     const result = await res.json();
     currentData = result.data;
     renderMetrics(result);
-    renderLogs(result.logs);
+    renderLogs(result.logs || []);
     renderTable(activeTabName);
   } catch (err) {
-    alert('Failed to execute engine: ' + err.message);
+    if (err.name !== 'AbortError') {
+      alert('Simulation error: ' + err.message);
+    }
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<span>🚀</span> Run Autonomous Agents';
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
   }
 }
 
@@ -435,8 +514,8 @@ function renderLogs(logs) {
 function renderMetrics(res) {
   document.getElementById('metricCities').innerText = res.cities_count || 11;
   document.getElementById('metricCorridors').innerText = res.transit_corridors || 55;
-  document.getElementById('metricBudget').innerText = res.validation ? res.validation.budget_compliance : '55/55';
-  document.getElementById('metricValidation').innerText = res.validation ? res.validation.status : 'PASS';
+  const matchCount = res.accommodations_count !== undefined ? res.accommodations_count : 0;
+  document.getElementById('metricBudget').innerText = `${matchCount} Hotels`;
 }
 
 function switchTab(tabKey, btnElem) {
@@ -452,26 +531,35 @@ function renderTable(tabKey) {
   const items = currentData[tabKey] || [];
 
   if (items.length === 0) {
-    container.innerHTML = '<div style="padding: 30px; text-align: center; color: #94a3b8;">No records matched your search filters.</div>';
+    container.innerHTML = '<div style="padding: 50px 20px; text-align: center; color: #f87171; font-weight: 600; font-size: 1.05rem; background: rgba(239, 68, 68, 0.06); border: 1px dashed rgba(239, 68, 68, 0.3); border-radius: 12px; margin: 20px;">⚠️ No hotels found within your selected budget</div>';
     return;
   }
 
   let html = '<table><thead><tr>';
   if (tabKey === 'final_output') {
-    html += '<th>City</th><th>Downtown</th><th>Recommended Locality</th><th>Transit & Station</th><th>Commute</th><th>Hotel</th><th>Nightly Rate</th><th>Safety</th><th>Score</th><th>Recommendation Summary</th></tr></thead><tbody>';
+    html += '<th>City</th><th>Downtown</th><th>Locality & Station</th><th>Commute</th><th>Hotel</th><th>Nightly Rate</th><th>Taxes & Fees</th><th>Total Booking</th><th>Availability</th><th>Multi-Source Direct Links</th><th>Safety</th><th>Score</th><th>Recommendation Summary</th></tr></thead><tbody>';
     items.forEach(r => {
       const isTop = r.recommendation.includes('#1');
       html += `<tr style="${isTop ? 'background: rgba(16, 185, 129, 0.08); font-weight: 500;' : ''}">
         <td><strong>${r.city}</strong></td>
         <td>${r.downtown}</td>
-        <td><span style="color: #60a5fa; font-weight: 600;">${r.recommended_locality}</span></td>
-        <td>${r.transit_system} (${r.station})</td>
+        <td><span style="color: #60a5fa; font-weight: 600;">${r.recommended_locality}</span> (${r.station})</td>
         <td>${r.commute_time}</td>
         <td>${r.hotel}</td>
-        <td style="color: #34d399; font-weight: 600;">$${r.rate.toFixed(0)}</td>
+        <td style="color: #34d399; font-weight: 700;">$${r.rate.toFixed(2)}</td>
+        <td>$${(r.taxes_and_fees || 0).toFixed(2)}</td>
+        <td style="color: #fbbf24; font-weight: 700;">$${(r.total_booking || 0).toFixed(2)}</td>
+        <td><span class="badge-avail">${r.availability_status || 'Available'}</span></td>
+        <td>
+          <a href="${r.google_hotels_url}" target="_blank" class="pill-link pill-g-hotels">🏨 Google Hotels</a>
+          <a href="${r.google_maps_url}" target="_blank" class="pill-link pill-g-maps">📍 Google Maps</a>
+          <a href="${r.booking_demand_api_url}" target="_blank" class="pill-link pill-booking">🛎️ Booking.com</a>
+          <a href="${r.expedia_rapid_api_url}" target="_blank" class="pill-link pill-expedia">✈️ Expedia</a>
+          <a href="${r.wyndham_official_url}" target="_blank" class="pill-link pill-wyndham">🏢 Wyndham</a>
+        </td>
         <td>${r.safety.toFixed(0)}</td>
         <td style="color: #38bdf8; font-weight: 700;">${r.overall_score.toFixed(2)}</td>
-        <td style="font-size: 0.78rem; color: #cbd5e1;">${r.recommendation}</td>
+        <td style="font-size: 0.78rem; color: #cbd5e1; max-width: 320px; overflow: hidden; text-overflow: ellipsis;">${r.recommendation}</td>
       </tr>`;
     });
   } else if (tabKey === 'scores') {
@@ -489,7 +577,7 @@ function renderTable(tabKey) {
       </tr>`;
     });
   } else if (tabKey === 'transit') {
-    html += '<th>City</th><th>Downtown</th><th>Suburb</th><th>Transit Authority</th><th>Mode</th><th>Station</th><th>Commute (Mins)</th><th>Transfers</th><th>Fare (USD)</th></tr></thead><tbody>';
+    html += '<th>City</th><th>Downtown</th><th>Suburb</th><th>Transit Authority</th><th>Mode</th><th>Station</th><th>Commute (Mins)</th><th>Transfers</th><th>Fare (USD)</th><th>Station Map</th></tr></thead><tbody>';
     items.forEach(r => {
       html += `<tr>
         <td><strong>${r.city}</strong></td>
@@ -501,19 +589,30 @@ function renderTable(tabKey) {
         <td><strong>${r.commute_minutes}m</strong></td>
         <td>${r.transfers}</td>
         <td>$${r.fare_usd.toFixed(2)}</td>
+        <td><a href="${r.google_maps_station_url || '#'}" target="_blank" class="pill-link pill-g-maps">📍 Station on Maps</a></td>
       </tr>`;
     });
   } else if (tabKey === 'accommodations') {
-    html += '<th>City</th><th>Locality</th><th>Hotel Name</th><th>Address</th><th>Nightly Rate</th><th>Rating</th><th>Reviews</th><th>Dist to Station</th></tr></thead><tbody>';
+    html += '<th>City</th><th>Locality</th><th>Hotel Name</th><th>Address</th><th>Base Rate</th><th>Taxes & Fees</th><th>Total Booking</th><th>Availability</th><th>Multi-Source Verification Links</th><th>Primary Source</th><th>Rating</th><th>Dist to Station</th></tr></thead><tbody>';
     items.forEach(r => {
       html += `<tr>
         <td><strong>${r.city}</strong></td>
         <td>${r.locality}</td>
         <td><strong>${r.hotel_name}</strong></td>
         <td style="font-size: 0.78rem;">${r.address}</td>
-        <td style="color: #34d399; font-weight: 700;">$${r.nightly_rate_usd.toFixed(0)}</td>
-        <td>⭐ ${r.rating.toFixed(1)}</td>
-        <td>${r.review_count}</td>
+        <td style="color: #34d399; font-weight: 700;">$${r.base_nightly_rate_usd.toFixed(2)}</td>
+        <td>$${r.taxes_and_fees_usd.toFixed(2)}</td>
+        <td style="color: #fbbf24; font-weight: 700;">$${r.total_booking_usd.toFixed(2)}</td>
+        <td><span class="badge-avail">${r.availability_status}</span></td>
+        <td>
+          <a href="${r.google_hotels_url}" target="_blank" class="pill-link pill-g-hotels">🏨 Google Hotels</a>
+          <a href="${r.google_maps_url}" target="_blank" class="pill-link pill-g-maps">📍 Google Maps</a>
+          <a href="${r.booking_demand_api_url}" target="_blank" class="pill-link pill-booking">🛎️ Booking</a>
+          <a href="${r.expedia_rapid_api_url}" target="_blank" class="pill-link pill-expedia">✈️ Expedia</a>
+          <a href="${r.wyndham_official_url}" target="_blank" class="pill-link pill-wyndham">🏢 Wyndham</a>
+        </td>
+        <td style="font-size: 0.75rem; color: #94a3b8;">${r.price_source}</td>
+        <td>⭐ ${r.rating.toFixed(1)} (${r.review_count})</td>
         <td>${r.distance_to_station_miles} mi</td>
       </tr>`;
     });
@@ -530,7 +629,7 @@ function renderTable(tabKey) {
       </tr>`;
     });
   } else if (tabKey === 'cities') {
-    html += '<th>City ID</th><th>City</th><th>State</th><th>Downtown District / CBD</th><th>Primary Transit Network</th><th>Coordinates</th><th>Last Sync</th></tr></thead><tbody>';
+    html += '<th>City ID</th><th>City</th><th>State</th><th>Downtown District / CBD</th><th>Primary Transit Network</th><th>District Map</th><th>Last Sync</th></tr></thead><tbody>';
     items.forEach(r => {
       html += `<tr>
         <td><code>${r.city_id}</code></td>
@@ -538,7 +637,7 @@ function renderTable(tabKey) {
         <td>${r.state}</td>
         <td>${r.downtown_district}</td>
         <td>${r.primary_transit_system}</td>
-        <td style="font-size: 0.78rem;">${r.latitude.toFixed(4)}, ${r.longitude.toFixed(4)}</td>
+        <td><a href="${r.google_maps_district_url || '#'}" target="_blank" class="pill-link pill-g-maps">📍 Google Maps CBD</a></td>
         <td style="font-size: 0.75rem; color: #94a3b8;">${r.last_updated}</td>
       </tr>`;
     });
@@ -548,8 +647,51 @@ function renderTable(tabKey) {
   container.innerHTML = html;
 }
 
-// Initial Load
-window.onload = () => executeEngine();
+// Quick selection helper for cities
+function selectAllCities(checked) {
+  document.querySelectorAll('input[name="city"]').forEach(cb => {
+    cb.checked = checked;
+  });
+  onFilterChange();
+}
+
+// Auto-enable Run button and attach change listeners to all filter inputs
+function onFilterChange() {
+  if (activeAbortController) {
+    activeAbortController.abort();
+    activeAbortController = null;
+  }
+  const btn = document.getElementById('runBtn');
+  if (btn) {
+    btn.disabled = false;
+    btn.innerHTML = '<span>🚀</span> Run Autonomous Agents';
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
+    btn.classList.add('pulse-ready');
+  }
+}
+
+// Initial Load & Event Listener Binding
+window.onload = () => {
+  // Bind input, change, and keyup events to budgetMin, budgetMax, maxCommute
+  ['budgetMin', 'budgetMax', 'maxCommute'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', onFilterChange);
+      el.addEventListener('change', onFilterChange);
+      el.addEventListener('keyup', onFilterChange);
+    }
+  });
+
+  // Bind change and click events to all city checkboxes
+  document.querySelectorAll('input[name="city"]').forEach(cb => {
+    cb.addEventListener('change', onFilterChange);
+    cb.addEventListener('click', onFilterChange);
+  });
+
+  // Run initial pipeline
+  executeEngine();
+};
 </script>
 
 </body>
@@ -582,6 +724,24 @@ class TravelEngineHTTPHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(content)
             return
+
+        elif parsed.path == "/api/download-n8n-workflow":
+            workflow_path = os.path.join(DIRECTORY, "n8n_travel_intelligence_workflow.json")
+            if os.path.exists(workflow_path):
+                with open(workflow_path, "rb") as f:
+                    content = f.read()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Content-Disposition", 'attachment; filename="n8n_travel_intelligence_workflow.json"')
+                self.send_header("Content-Length", str(len(content)))
+                self.end_headers()
+                self.wfile.write(content)
+            else:
+                self.send_response(404)
+                self.send_header("Content-Type", "text/plain; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(b"Workflow file not found")
+            return
             
         super().do_GET()
 
@@ -598,36 +758,48 @@ class TravelEngineHTTPHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps({"error": f"Invalid JSON payload: {str(e)}"}).encode('utf-8'))
                 return
-            
-            budget_min = float(params.get('budget_min', 50.0))
-            budget_max = float(params.get('budget_max', 60.0))
-            max_commute = int(params.get('max_commute_minutes', 90))
-            cities = params.get('cities', None)
-            
-            engine = AgenticTravelEngine(
-                target_cities=cities,
-                budget_min=budget_min,
-                budget_max=budget_max,
-                max_commute_minutes=max_commute
-            )
+
+            budget_min = float(params.get("budget_min", 50.0))
+            budget_max = float(params.get("budget_max", 60.0))
+            max_commute = int(params.get("max_commute_minutes", 90))
+            cities = params.get("cities") or None
+
             excel_path = os.path.join(DIRECTORY, "Travel_Intelligence_Master_Workbook.xlsx")
-            result = engine.run(excel_path)
             
-            self.send_response(200)
-            self.send_header("Content-type", "application/json")
-            self.end_headers()
-            self.wfile.write(json.dumps(result).encode('utf-8'))
+            try:
+                engine = AgenticTravelEngine(
+                    target_cities=cities,
+                    budget_min=budget_min,
+                    budget_max=budget_max,
+                    max_commute_minutes=max_commute
+                )
+                result = engine.run(output_excel_path=excel_path)
+
+                self.send_response(200)
+                self.send_header("Content-type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(result).encode('utf-8'))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "ERROR", "message": str(e)}).encode('utf-8'))
             return
 
-def start_server():
+        self.send_response(404)
+        self.end_headers()
+
+def run_server():
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("", PORT), TravelEngineHTTPHandler) as httpd:
-        print("=" * 75)
-        print(f"[+] Agentic AI Travel Intelligence Engine Server Running!")
-        print(f"[+] Web Dashboard URL: http://localhost:{PORT}")
-        print("=" * 75)
-        httpd.serve_forever()
+        print(f"[SERVER] AI Travel Intelligence Platform Web Server listening on http://localhost:{PORT}")
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            print("\nShutting down server.")
+            httpd.server_close()
 
 if __name__ == "__main__":
-    start_server()
-
+    run_server()
