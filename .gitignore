@@ -1,7 +1,21 @@
+# Environment variables and secrets
 .env
 .env.*
 !.env.example
+
+# Python cache files
 __pycache__/
 *.py[cod]
+*$py.class
+
+# Virtual environments
 .venv/
 venv/
+
+# Testing and temporary files
+.pytest_cache/
+*.log
+*.tmp
+
+# Travel Intelligence workbook
+Travel_Intelligence_Master_Workbook.xlsx

@@ -48,7 +48,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"api_key\": \"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\",\n  \"query\": \"Major Central Business District, downtown coordinates and commuter rail hubs in \" + $json.city,\n  \"search_depth\": \"basic\",\n  \"max_results\": 3\n}",
+        "jsonBody": "={\n  \"api_key\": $env.TAVILY_API_KEY || \"\",\n  \"query\": \"Major Central Business District, downtown coordinates and commuter rail hubs in \" + $json.city,\n  \"search_depth\": \"basic\",\n  \"max_results\": 3\n}",
         "options": {
           "timeout": 15000
         }
@@ -91,7 +91,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"api_key\": \"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\",\n  \"query\": $json.city + \" hotel nightly rates near commuter rail station\",\n  \"search_depth\": \"basic\",\n  \"max_results\": 3\n}",
+        "jsonBody": "={\n  \"api_key\": $env.TAVILY_API_KEY || \"\",\n  \"query\": $json.city + \" hotel nightly rates near commuter rail station\",\n  \"search_depth\": \"basic\",\n  \"max_results\": 3\n}",
         "options": {
           "timeout": 15000
         }

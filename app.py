@@ -398,6 +398,10 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         <label class="city-check"><input type="checkbox" name="city" value="San Antonio" checked> San Antonio</label>
         <label class="city-check"><input type="checkbox" name="city" value="San Jose" checked> San Jose</label>
       </div>
+      <div style="margin-top: 8px;">
+        <label for="customCityInput" style="font-size: 0.75rem;">Or Enter Custom City / Destination (Worldwide):</label>
+        <input type="text" id="customCityInput" placeholder="e.g. Seattle, Denver, London, Toronto" style="width: 100%; background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; color: #fff; font-size: 0.85rem; outline: none;">
+      </div>
     </div>
 
     <button class="btn-primary" id="runBtn" onclick="executeEngine()">
@@ -463,10 +467,15 @@ async function executeEngine() {
   const budgetMin = parseFloat(document.getElementById('budgetMin').value) || 50;
   const budgetMax = parseFloat(document.getElementById('budgetMax').value) || 60;
   const maxCommute = parseInt(document.getElementById('maxCommute').value) || 90;
-  const cityChecks = Array.from(document.querySelectorAll('input[name="city"]:checked')).map(cb => cb.value);
+  let cityChecks = Array.from(document.querySelectorAll('input[name="city"]:checked')).map(cb => cb.value);
+  const customCity = (document.getElementById('customCityInput').value || '').trim();
+  if (customCity) {
+    const customList = customCity.split(',').map(c => c.trim()).filter(c => c.length > 0);
+    cityChecks = customList.concat(cityChecks);
+  }
 
   if (cityChecks.length === 0) {
-    alert('Please select at least one metropolitan market.');
+    alert('Please select at least one metropolitan market or enter a custom destination.');
     btn.disabled = false;
     btn.innerHTML = '<span>🚀</span> Run Autonomous Agents';
     return;
